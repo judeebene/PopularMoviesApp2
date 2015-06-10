@@ -1,13 +1,15 @@
-package com.shareqube.popularmoviesapp;
+package com.shareqube.popularmoviesapp.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.shareqube.popularmoviesapp.Movie;
+import com.shareqube.popularmoviesapp.MovieDiscoveryFragment;
+import com.shareqube.popularmoviesapp.R;
 
 import java.util.List;
 
@@ -66,33 +68,33 @@ public class MoviesAdapter extends ArrayAdapter<Movie> {
         if (convertView == null) {
 
             moviesPoster = new ImageView(mContext);
-            // moviesPoster.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT));
+
             moviesPoster.setScaleType(ImageView.ScaleType.CENTER_CROP);
             moviesPoster.setAdjustViewBounds(true);
-            // moviesPoster.setPadding(8, 8, 8, 8);
+
 
         } else {
             moviesPoster = (ImageView) convertView;
             poster = (ImageView) convertView.findViewById(R.id.poster);
         }
 
-        //poster.setImageResource(mThumbIds[position]);
+
 
         Movie url = getItem(position) ;
 
 
-        Log.e(LOG_TAG , "movie object dot poster"+ url.poster);
+
+        Glide.with(mContext)
+                .load(url.getmMovieposter())
+                .error(R.drawable.installerposter)
+                .crossFade()
+                .into(moviesPoster) ;
 
 
 
-        Glide.with(mContext).load(url.poster).error(R.drawable.installerposter).into(moviesPoster) ;
 
 
 
-
-
-            // return moviesPoster;
-            // return  poster ;
 
 
               return moviesPoster ;

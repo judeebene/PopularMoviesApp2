@@ -5,9 +5,12 @@ package com.shareqube.popularmoviesapp;
  */
 
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,7 +21,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.shareqube.popularmoviesapp.adapter.MoviesAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,6 +62,27 @@ public  class MovieDiscoveryFragment extends Fragment {
         setHasOptionsMenu(true);
     }
 
+
+    // saving the data into Parcelable object
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        if(movie != null){
+          outState.putParcelable("mMovie", movie);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+// restoring parcelable data on device change
+    @Override
+    public void onViewStateRestored( Bundle savedInstanceState) {
+
+        if(savedInstanceState != null){
+            movie = savedInstanceState.getParcelable("mMovie");
+        }
+        super.onViewStateRestored(savedInstanceState);
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_discovery_screen , menu);
@@ -69,8 +98,9 @@ public  class MovieDiscoveryFragment extends Fragment {
                 break;
             case R.id.action_settings:
 
-            // Todo Settings Activity
-            break;
+                Intent settingIntent = new Intent(getActivity() ,SettingsActivity.class) ;
+                startActivity(settingIntent);
+                return true;
 
             default:
                 return false ;
@@ -92,20 +122,15 @@ public  class MovieDiscoveryFragment extends Fragment {
 
         GridView moviesPosterGrid = (GridView) rootView.findViewById(R.id.movie_gridview) ;
 
-       // mMoviesAdapter =  new MoviesAdapter(getActivity(),R.id.poster, movie) ;
-       // moviesPosterGrid.setAdapter( mMoviesAdapter);
-
-        moviesPosterGrid.setOnItemClickListener( new AdapterView.OnItemClickListener() {
 
 
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getActivity(), "Position Click" + position, Toast.LENGTH_LONG).show();
-            }
-        });
+
 
         FetchMoviesTask fetchMoviesTask = new FetchMoviesTask();
-        fetchMoviesTask.execute("popularity.desc");
+        SharedPreferences settingPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sort_order = settingPref.getString(getString(R.string.movie_sort_key),
+                getString(R.string.movie_sort_order_default_value));
+        fetchMoviesTask.execute(sort_order);
         return rootView;
     }
 
@@ -116,6 +141,9 @@ public  class MovieDiscoveryFragment extends Fragment {
         public Movie movie ;
         public  String[] moviePoster ;
 
+
+        final String BASE_MOVIE_POSTER_URL  = "http://image.tmdb.org/t/p/" ;
+        String[] IMAGE_SIZES = {"w185","w92", "w154" , "w342" , "w500" ,"w780"} ;
         @Override
         protected List<Movie> doInBackground(String... params) {
             HttpURLConnection urlConnection = null;
@@ -151,7 +179,7 @@ public  class MovieDiscoveryFragment extends Fragment {
                 Log.e(LOG_TAG, "Built URL" + buildUri.toString()) ;
 
 
-                // Create the request to OpenWeatherMap, and open the connection
+                // Create the request to theMovieDB, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -194,7 +222,7 @@ public  class MovieDiscoveryFragment extends Fragment {
                     try {
                         reader.close();
                     } catch (final IOException e) {
-                        Log.e("PlaceholderFragment", "Error closing stream", e);
+                        Log.e(LOG_TAG, "Error closing stream", e);
                     }
                 }
 
@@ -205,8 +233,9 @@ public  class MovieDiscoveryFragment extends Fragment {
             // return statement
 
             try{
+                // prepares the data and parse the json
                  movies = getMoviesDataFromJson(moviesJsonStr);
-                Log.e(LOG_TAG , "Wetin you u the return"+ movies );
+
             } catch (JSONException e){
                 Log.e(LOG_TAG , e.getMessage() , e);
                 e.printStackTrace();
@@ -222,8 +251,6 @@ public  class MovieDiscoveryFragment extends Fragment {
         @Override
         protected void onPostExecute(List<Movie> result) {
 
-            Log.e(LOG_TAG ," on post execute Result" +result) ;
-
 
             List<String> poster_paths =new ArrayList<String>();
 
@@ -235,35 +262,55 @@ public  class MovieDiscoveryFragment extends Fragment {
 
                 Movie movies = result.get(i);
 
-                poster_paths.add(movies.poster) ;
-
-                     //movies.setMoviePoster(result.size() ,movies.poster);
-
-               // mMoviesAdapter.add(movies);
+                poster_paths.add(movies.getmMovieposter()) ;
 
             }
 
             GridView moviesPosterGrid = (GridView) getActivity().findViewById(R.id.movie_gridview) ;
 
+          mMoviesAdapter   =  new MoviesAdapter(getActivity(), R.layout.row, result);
+            moviesPosterGrid.setAdapter(mMoviesAdapter);
 
-            moviesPosterGrid.setAdapter(new MoviesAdapter(getActivity(), R.layout.row, result));
 
+
+            moviesPosterGrid.setOnItemClickListener( new AdapterView.OnItemClickListener() {
+
+
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Toast.makeText(getActivity(), "Position Click" + position, Toast.LENGTH_LONG).show();
+
+                    Movie discover  =  mMoviesAdapter.getItem(position);
+                    Intent movieDetailIntent = new Intent(getActivity() ,MovieDetail.class) ;
+                    movieDetailIntent.putExtra("movie" ,discover);
+                    startActivity(movieDetailIntent);
+
+                }
+            });
+
+             class ViewHolder {
+                 ImageView moviePoster;
+                 TextView movieTitle;
+                 RatingBar movieRating ;
+                 TextView  movieOverview ;
+
+
+
+                 public ViewHolder(View v) {
+
+                 }
+             }
+
+            //end of View Holder classs
         }
 
 
 
-
-
-
-
+//construct absolute path for the movie poster
         public String getMoviePosterAbsolutePath(String relative_path){
 
-            String base_url = "http://image.tmdb.org/t/p/" ;
 
-            String poster_size = "w185" ;
-
-
-            return  base_url + poster_size + relative_path ;
+            return  BASE_MOVIE_POSTER_URL + IMAGE_SIZES[0] + relative_path ;
         }
 
         public ArrayList<Movie> getMoviesDataFromJson(String moviesJsonStr ) throws JSONException{
@@ -305,6 +352,8 @@ public  class MovieDiscoveryFragment extends Fragment {
                 String movie_overview = moviesDiscover.getString(PLOT_SYNOPSIS) ;
 
                 String user_rating = moviesDiscover.getString(USER_RATING) ;
+
+                // populate the Movie Objects with the json data
 
                  movie = new Movie(movie_id ,movie_title ,movie_poster ,release_date ,movie_overview ,user_rating) ;
 
