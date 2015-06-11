@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -40,9 +41,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 public  class MovieDiscoveryFragment extends Fragment {
+
+    String LOG_TAG = MovieDiscoveryFragment.class.getSimpleName() ;
 
     Movie movie;
 
@@ -110,9 +114,24 @@ public  class MovieDiscoveryFragment extends Fragment {
 
     public void updateMovies(){
         FetchMoviesTask fetchMoviesTask = new FetchMoviesTask();
-        fetchMoviesTask.execute("popularity.desc") ;
+
+        SharedPreferences settingPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        String sort_order = settingPref.getString(getString(R.string.movie_sort_key),getString(R.string.movie_sort_order_default_value));
+
+       // Log.e(LOG_TAG , "all keys"+ sort_order_test) ;
 
 
+
+        fetchMoviesTask.execute(sort_order);
+
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateMovies();
     }
 
     @Override
@@ -126,11 +145,7 @@ public  class MovieDiscoveryFragment extends Fragment {
 
 
 
-        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask();
-        SharedPreferences settingPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String sort_order = settingPref.getString(getString(R.string.movie_sort_key),
-                getString(R.string.movie_sort_order_default_value));
-        fetchMoviesTask.execute(sort_order);
+
         return rootView;
     }
 
@@ -140,6 +155,9 @@ public  class MovieDiscoveryFragment extends Fragment {
         final String LOG_TAG = FetchMoviesTask.class.getSimpleName() ;
         public Movie movie ;
         public  String[] moviePoster ;
+
+
+
 
 
         final String BASE_MOVIE_POSTER_URL  = "http://image.tmdb.org/t/p/" ;
@@ -166,6 +184,7 @@ public  class MovieDiscoveryFragment extends Fragment {
 
                 final String SORT_BY_PARAM ="sort_by" ;
                 final String API_KEY_PARAM = "api_key" ;
+
 
 
                 Uri buildUri = Uri.parse(BASE_URL).buildUpon()

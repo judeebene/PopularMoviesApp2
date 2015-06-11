@@ -15,6 +15,8 @@ public class DiscoveryScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_discovery_screen);
 
+        PreferenceManager.setDefaultValues(this, R.xml.movies_setting, false);
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new MovieDiscoveryFragment())
@@ -26,7 +28,7 @@ public class DiscoveryScreen extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-        PreferenceManager.setDefaultValues(this, R.xml.movies_setting, false);
+
     }
 
 

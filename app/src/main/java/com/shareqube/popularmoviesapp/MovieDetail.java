@@ -1,9 +1,11 @@
 package com.shareqube.popularmoviesapp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -26,10 +28,11 @@ public class MovieDetail extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_discovery_screen);
+        setContentView(R.layout.activity_movie_detail);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
         toolbar.setTitle(getString(R.string.app_name));
+
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
 
@@ -38,14 +41,13 @@ public class MovieDetail extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true) ;
             actionBar.show();
         }
-        Log.e(LOG_TAG , "ActionBar in Detail " + actionBar);
 
 
 
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.detail_movie_container, new MovieDetailFragment())
                     .commit();
         }
 
@@ -78,68 +80,5 @@ public class MovieDetail extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        String LOG_TAG = PlaceholderFragment.class.getSimpleName() ;
 
-        ViewHolder holder ;
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-
-            Intent intent = getActivity().getIntent() ;
-            View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
-              holder = new ViewHolder(rootView) ;
-              rootView.setTag(holder);
-            if(intent != null & intent.hasExtra("movie")){
-              Movie movieDetails =  intent.getParcelableExtra("movie");
-
-
-                Log.e(LOG_TAG ," Detail Images" + movieDetails.getmMovieposter());
-                Glide.with(this).load(movieDetails.getmMovieposter()).error(R.drawable.installerposter)
-                        .override(400,400)
-                       .into(holder.detailPoster);
-                holder.movieOverview.setText(movieDetails.getmMovieOverview());
-                holder.movieRelease.setText(movieDetails.getmMovieReleaseDate());
-                holder.movieTitle.setText(movieDetails.getmMovietitle());
-
-                Float rating = Float.parseFloat(movieDetails.getmMovieRating());
-                holder.movieRating.setRating(rating);
-
-                holder.movieRatingValue.setText(movieDetails.getmMovieRating());
-
-
-
-
-            }
-
-
-            return rootView;
-        }
-
-        static class ViewHolder{
-            ImageView detailPoster ;
-            TextView  movieTitle ;
-            TextView  movieRelease ;
-            TextView movieOverview ;
-            RatingBar movieRating ;
-            TextView  movieRatingValue ;
-
-            public ViewHolder(View v){
-                detailPoster = (ImageView) v.findViewById(R.id.detailPoster_view);
-                movieTitle = (TextView) v.findViewById(R.id.movie_title_view) ;
-                movieRelease = (TextView)v.findViewById(R.id.movie_release_view) ;
-                movieOverview = (TextView) v.findViewById(R.id.movie_overview_view);
-                movieRating = ( RatingBar) v.findViewById(R.id.movieRatingBar) ;
-                movieRatingValue = (TextView) v.findViewById(R.id.movieRatingValue);
-            }
-
-        }
-    }
 }
