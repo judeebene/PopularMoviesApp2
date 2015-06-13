@@ -3,6 +3,7 @@ package com.shareqube.popularmoviesapp;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -39,7 +40,7 @@ import java.util.List;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity  {
 
 
 
@@ -47,6 +48,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_setting);
 
 
@@ -56,6 +58,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
         toolbar.setTitle(getString(R.string.app_name));
+        toolbar.setNavigationIcon(R.mipmap.ic_launcher);
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -68,7 +71,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
-    public  static  class SettingFragment extends PreferenceFragment{
+    public  static  class SettingFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener{
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -77,6 +80,11 @@ public class SettingsActivity extends AppCompatActivity {
 
             addPreferencesFromResource(R.xml.movies_setting);
 
+
+
+
+
+            findPreference(getString(R.string.movie_sort_key));
 
 
 
@@ -102,6 +110,26 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
 
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+            String value = newValue.toString();
+
+            if(preference instanceof ListPreference){
+                ListPreference listPreference = (ListPreference) preference ;
+                int prefIndex = listPreference.findIndexOfValue(value);
+                if(prefIndex > 0){
+                    preference.setSummary(listPreference.getEntries()[prefIndex]);
+                }
+                else {
+                    preference.setSummary(value);
+                }
+            }
+
+
+
+            return true;
+        }
     }
 
 

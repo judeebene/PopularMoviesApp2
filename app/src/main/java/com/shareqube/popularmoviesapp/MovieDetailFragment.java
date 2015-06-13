@@ -5,9 +5,12 @@ package com.shareqube.popularmoviesapp;
  */
 
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewCompat;
+import android.transition.Transition;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +23,16 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.data.DataFetcher;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.stream.StreamModelLoader;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
+
+import java.io.InputStream;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -32,6 +45,7 @@ public  class MovieDetailFragment extends Fragment {
     public MovieDetailFragment() {
 
     }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,22 +79,48 @@ public  class MovieDetailFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                Bundle savedInstanceState){
+
+
+            Intent intent = getActivity().getIntent();
+            View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
+            holder = new ViewHolder(rootView);
+            rootView.setTag(holder);
+            if (intent != null & intent.hasExtra(getString(R.string.intent_extra))) {
+                Movie movieDetails = intent.getParcelableExtra(getString(R.string.intent_extra));
 
 
 
-        Intent intent = getActivity().getIntent() ;
-        View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
-        holder = new ViewHolder(rootView) ;
-        rootView.setTag(holder);
-        if(intent != null & intent.hasExtra("movie")){
-            Movie movieDetails =  intent.getParcelableExtra("movie");
+            // try to load  Glide Image from from Diskcache
 
+            Glide.with(this).load(movieDetails.getmMovieposter()).diskCacheStrategy(DiskCacheStrategy.SOURCE).listener(new RequestListener<String, GlideDrawable>() {
+                @Override
+                public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                    Log.i(LOG_TAG, "Listener onException: " + e.toString());
+                    return false;
+                }
 
-            Log.e(LOG_TAG, " Detail Images" + movieDetails.getmMovieposter());
+                @Override
+                public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                    Log.e(LOG_TAG, "onResourceReady with resource = " + resource);
+                    Log.i(LOG_TAG, "onResourceReady from memory cache = " + isFromMemoryCache);
+                    return false;
+                }
+            }).error(R.drawable.no_poster)
+                    .into(new SimpleTarget<GlideDrawable>(256, 256) {
+                        @Override
+                        public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
+                            Log.i(LOG_TAG, "GlideDrawalble = '" + resource + "'");
+                            holder.detailPoster.setImageDrawable(resource.getCurrent());
+                        }
+                    });
+
+     /*
             Glide.with(this).load(movieDetails.getmMovieposter()).error(R.drawable.installerposter)
-                    .override(400,400)
+                    .override(400, 400)
                     .into(holder.detailPoster);
+                    */
+            ViewCompat.setTransitionName(holder.detailPoster, MovieDetail.Transision_name);
             holder.movieOverview.setText(movieDetails.getmMovieOverview());
             holder.movieRelease.setText(movieDetails.getmMovieReleaseDate());
             holder.movieTitle.setText(movieDetails.getmMovietitle());
@@ -93,11 +133,15 @@ public  class MovieDetailFragment extends Fragment {
 
 
 
+
+
         }
 
 
         return rootView;
     }
+
+
 
     static class ViewHolder{
         ImageView detailPoster ;

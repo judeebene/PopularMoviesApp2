@@ -23,7 +23,7 @@ public class DiscoveryScreen extends AppCompatActivity {
                     .commit();
         }
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
-       toolbar.setNavigationIcon(R.drawable.ic_launcher);
+       toolbar.setNavigationIcon(R.mipmap.ic_launcher);
         toolbar.setTitle(R.string.app_name);
         setSupportActionBar(toolbar);
 
@@ -32,22 +32,6 @@ public class DiscoveryScreen extends AppCompatActivity {
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-      //  getMenuInflater().inflate(R.menu.menu_discovery_screen, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-
-        return super.onOptionsItemSelected(item);
-    }
 
 }

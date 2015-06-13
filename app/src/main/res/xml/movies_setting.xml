@@ -5,9 +5,9 @@
 
 
     <ListPreference
-        android:key="order_by"
+        android:key="@string/movie_sort_key"
         android:title="@string/movie_setting_title"
-        android:defaultValue="popularity.desc"
+        android:defaultValue="@string/movie_sort_order_default_value"
         android:entries="@array/movies_sort_entries"
         android:entryValues="@array/movies_sort_entries_values"
         />

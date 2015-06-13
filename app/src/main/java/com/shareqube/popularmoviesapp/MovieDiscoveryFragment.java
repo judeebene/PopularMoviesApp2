@@ -12,7 +12,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -49,6 +52,7 @@ public  class MovieDiscoveryFragment extends Fragment {
     String LOG_TAG = MovieDiscoveryFragment.class.getSimpleName() ;
 
     Movie movie;
+
 
 
 
@@ -97,14 +101,12 @@ public  class MovieDiscoveryFragment extends Fragment {
 
         int id = item.getItemId() ;
         switch (id ){
-            case R.id.action_refresh:
-                // updateMovies
-                break;
+
             case R.id.action_settings:
 
                 Intent settingIntent = new Intent(getActivity() ,SettingsActivity.class) ;
                 startActivity(settingIntent);
-                return true;
+                break;
 
             default:
                 return false ;
@@ -138,9 +140,6 @@ public  class MovieDiscoveryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_discovery_screen, container, false);
-
-        GridView moviesPosterGrid = (GridView) rootView.findViewById(R.id.movie_gridview) ;
-
 
 
 
@@ -271,43 +270,72 @@ public  class MovieDiscoveryFragment extends Fragment {
         protected void onPostExecute(List<Movie> result) {
 
 
-            List<String> poster_paths =new ArrayList<String>();
+           // List<String> poster_paths =new ArrayList<String>();
+            List<Movie> movies_list = new ArrayList<>();
 
 
-            if(result != null){
-               // mMoviesAdapter.clear();
+
+            if(result != null) {
+
+
+                for (int i = 0; i < result.toArray().length; i++) {
+
+                    Movie movies = result.get(i);
+                    //movies.getmMovieposter()
+
+                   // poster_paths.addAll(result);
+                    movies_list.addAll(result);
+
+                }
+
+            }else {
+                mMoviesAdapter.clear();
             }
-            for(int i=0 ; i < result.size(); i++ ){
 
-                Movie movies = result.get(i);
-
-                poster_paths.add(movies.getmMovieposter()) ;
-
-            }
 
             GridView moviesPosterGrid = (GridView) getActivity().findViewById(R.id.movie_gridview) ;
 
-          mMoviesAdapter   =  new MoviesAdapter(getActivity(), R.layout.row, result);
+            mMoviesAdapter   =  new MoviesAdapter(getActivity(), R.layout.fragment_discovery_screen  , result);
             moviesPosterGrid.setAdapter(mMoviesAdapter);
 
 
 
-            moviesPosterGrid.setOnItemClickListener( new AdapterView.OnItemClickListener() {
+
+            moviesPosterGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Toast.makeText(getActivity(), "Position Click" + position, Toast.LENGTH_LONG).show();
 
-                    Movie discover  =  mMoviesAdapter.getItem(position);
-                    Intent movieDetailIntent = new Intent(getActivity() ,MovieDetail.class) ;
-                    movieDetailIntent.putExtra("movie" ,discover);
+
+                    Movie discover = mMoviesAdapter.getItem(position);
+                    Intent movieDetailIntent = new Intent(getActivity(), MovieDetail.class);
+
+
+                    movieDetailIntent.putExtra("movie", discover);
+
+                    //Transition
+                    // reading and following
+                    //https://github.com/googlesamples/android-ActivitySceneTransitionBasic
+
+                    ActivityOptionsCompat activityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                            getActivity(),
+                            new Pair<View, String>(view.findViewById(R.id.poster),
+                                    MovieDetail.Transision_name));
+
+                    ActivityCompat.startActivity(getActivity(), movieDetailIntent, activityOptionsCompat.toBundle());
                     startActivity(movieDetailIntent);
 
                 }
             });
 
-             class ViewHolder {
+           // mMoviesAdapter.notifyDataSetChanged();
+
+
+
+
+
+            class ViewHolder {
                  ImageView moviePoster;
                  TextView movieTitle;
                  RatingBar movieRating ;
@@ -379,6 +407,8 @@ public  class MovieDiscoveryFragment extends Fragment {
 
 
                 resultMovies.add(movie);
+
+
 
 
 
