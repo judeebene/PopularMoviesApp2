@@ -34,23 +34,41 @@ import com.bumptech.glide.request.target.Target;
 
 import java.io.InputStream;
 
-/**
- * A placeholder fragment containing a simple view.
- */
+
 public  class MovieDetailFragment extends Fragment {
     String LOG_TAG = MovieDetailFragment.class.getSimpleName() ;
+    String mLocation ;
 
     ViewHolder holder ;
 
     public MovieDetailFragment() {
+        setHasOptionsMenu(true);
 
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(savedInstanceState != null){
+            mLocation = savedInstanceState.getString("movie") ;
+        }
+        Intent intent = getActivity().getIntent() ;
+        if(intent != null & intent.hasExtra(getString(R.string.intent_extra))){
+            Movie movieDetails = intent.getParcelableExtra(getString(R.string.intent_extra));
+        }
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(getString(R.string.movie_sort_key ),mLocation);
+        super.onSaveInstanceState(outState);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+
     }
 
     @Override

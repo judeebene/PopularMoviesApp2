@@ -64,6 +64,11 @@ public  class MovieDiscoveryFragment extends Fragment {
 
     }
 
+    public interface CallerBack{
+
+        public void onMovieSelected(int position);
+    }
+
     @Override
     public void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -289,7 +294,7 @@ public  class MovieDiscoveryFragment extends Fragment {
                 }
 
             }else {
-                mMoviesAdapter.clear();
+               // mMoviesAdapter.clear();
             }
 
 
@@ -312,7 +317,7 @@ public  class MovieDiscoveryFragment extends Fragment {
                     Intent movieDetailIntent = new Intent(getActivity(), MovieDetail.class);
 
 
-                    movieDetailIntent.putExtra("movie", discover);
+                    movieDetailIntent.putExtra(getString(R.string.intent_extra), discover);
 
                     //Transition
                     // reading and following

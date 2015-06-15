@@ -28,7 +28,7 @@ public class MovieDetail extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
         toolbar.setTitle(getString(R.string.app_name));
-        
+
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -44,7 +44,7 @@ public class MovieDetail extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.detail_movie_container, new MovieDetailFragment())
+                    .add(R.id.movie_detail_fragment, new MovieDetailFragment())
                     .commit();
         }
 

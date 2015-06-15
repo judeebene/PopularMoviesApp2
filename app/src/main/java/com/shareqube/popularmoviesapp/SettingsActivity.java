@@ -3,6 +3,7 @@ package com.shareqube.popularmoviesapp;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.Ringtone;
@@ -17,6 +18,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -43,7 +45,11 @@ import java.util.List;
 public class SettingsActivity extends AppCompatActivity  {
 
 
-
+    @TargetApi(16)
+    @Override
+    public Intent getSupportParentActivityIntent() {
+        return super.getSupportParentActivityIntent().addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +64,7 @@ public class SettingsActivity extends AppCompatActivity  {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
         toolbar.setTitle(getString(R.string.app_name));
-        toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+
 
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -70,6 +76,8 @@ public class SettingsActivity extends AppCompatActivity  {
         }
 
     }
+
+
 
     public  static  class SettingFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener{
 
