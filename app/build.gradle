@@ -5,7 +5,7 @@ android {
     buildToolsVersion '23.0.0 rc2'
 
     defaultConfig {
-        applicationId "com.shareqube.popularmoviesapp"
+        applicationId "com.shareqube.moviesapp"
         minSdkVersion 16
         targetSdkVersion 22
         versionCode 1
