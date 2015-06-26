@@ -22,6 +22,6 @@
     <string name="movie_detail_rating_value"> 0.0 </string>
     <string name="intent_extra">movie</string>
     <string name="sync_account_type">movieapp.shareqube.com</string>
-    <string name="content_authority">com.shareqube.moviesapp</string>
+    <string name="content_authority">com.shareqube.moviesapp.data</string>
 
 </resources>

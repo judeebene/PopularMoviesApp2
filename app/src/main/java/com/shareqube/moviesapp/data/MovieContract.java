@@ -2,6 +2,7 @@ package com.shareqube.moviesapp.data;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.Context;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -9,6 +10,7 @@ import android.provider.BaseColumns;
  * Created by Jude Ben on 6/19/2015.
  */
 public class MovieContract {
+
 
     public static final String CONTENT_AUTHORITY = "com.shareqube.moviesapp.data" ;
 
@@ -46,6 +48,10 @@ public class MovieContract {
             return ContentUris.withAppendedId(CONTENT_URI , id) ;
         }
 
+        public static Integer getIDFromUri(Uri uri) {
+            return Integer.parseInt(uri.getPathSegments().get(1));
+        }
+
     }
 
     public static final class FavoriteMoviesTable implements  BaseColumns{
@@ -74,8 +80,9 @@ public class MovieContract {
 
    public static final Uri getFavoriteMoviesUri(Long id){
 
-       return  ContentUris.withAppendedId(CONTENT_URI , id) ;
+       return ContentUris.withAppendedId(CONTENT_URI, id);
    }
+
 
     }
 }

@@ -11,7 +11,7 @@ import  com.shareqube.moviesapp.data.MovieContract.FavoriteMoviesTable ;
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 1 ;
+    public static final int DATABASE_VERSION = 3;
     public static final String DATABASE_NAME = "movies.db" ;
 
 
@@ -26,7 +26,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
 
 
         final String SQL_CREATE_ALL_MOVIES = " CREATE TABLE "  + AllMoviesTable.TABLE_NAME + " ( " +
-                AllMoviesTable._ID + "INTEGER PRIMARY KEY, " +
+                AllMoviesTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT , " +
                 AllMoviesTable.COLUMN_MOVIE_ID + " TEXT NOT NULL , " +
                 AllMoviesTable.COLUMN_MOVIE_TITLE  + " TEXT NOT NULL , "+
                 AllMoviesTable.COLUMN_MOVIE_POSTER + " TEXT NOT NULL ,"  +
@@ -37,8 +37,8 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 AllMoviesTable.COLUMN_TRAILER_URL  +  " TEXT " +
                 " ) ;" ;
 
-        final String SQL_CREATE_FAVORITE_MOVIE = " CREATE TABELE " + FavoriteMoviesTable.TABLE_NAME + " ( " +
-                FavoriteMoviesTable._ID + " INTEGER PRIMARY KEY , "+
+        final String SQL_CREATE_FAVORITE_MOVIE = " CREATE TABLE " + FavoriteMoviesTable.TABLE_NAME + " ( " +
+                FavoriteMoviesTable._ID + " INTEGER PRIMARY KEY  AUTOINCREMENT , " +
                  FavoriteMoviesTable.COLUMN_FMOVIE_ID + " TEXT NOT NULL , " +
                 FavoriteMoviesTable.COLUMN_FMOVIE_TITLE  + " TEXT NOT NULL , "+
                 FavoriteMoviesTable.COLUMN_FMOVIE_POSTER + " TEXT NOT NULL ,"  +

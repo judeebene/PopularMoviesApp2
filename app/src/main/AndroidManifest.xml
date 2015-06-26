@@ -63,6 +63,15 @@
                 android:resource="@xml/syncadapter" />
 
         </service>
+
+        <provider
+            android:name=".data.MovieProvider"
+            android:authorities="@string/content_authority"
+            android:enabled="true"
+            android:exported="true"
+            android:syncable="true">
+
+        </provider>
     </application>
 
 </manifest>

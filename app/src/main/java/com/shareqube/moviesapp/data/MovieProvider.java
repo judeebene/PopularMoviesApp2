@@ -7,18 +7,20 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * Created by Jude Ben on 6/19/2015.
  */
 public class MovieProvider extends ContentProvider {
 
-    static UriMatcher uriMatcher = buildUriMatcher() ;
-
     static final int ALLMOVIES = 100 ;
+    static final int MOVIE_ROW = 150;
     static final int FAVORITEMOVIES =200 ;
+    private static final String sSingle =
+            MovieContract.AllMoviesTable._ID + " = ? ";
+    static UriMatcher uriMatcher = buildUriMatcher();
     MovieDBHelper movieDBHelper ;
-
 
     static UriMatcher buildUriMatcher(){
         UriMatcher matcher =  new UriMatcher(UriMatcher.NO_MATCH) ;
@@ -26,6 +28,7 @@ public class MovieProvider extends ContentProvider {
         final String authority = MovieContract.CONTENT_AUTHORITY ;
 
         matcher.addURI(authority , MovieContract.ALL_MOVIES_PATH,ALLMOVIES );
+        matcher.addURI(authority, MovieContract.ALL_MOVIES_PATH + "/*", MOVIE_ROW);
         matcher.addURI(authority , MovieContract.FAVORITE_MOVIES_PATH , FAVORITEMOVIES);
 
 
@@ -42,7 +45,9 @@ public class MovieProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 
+
         int match = uriMatcher.match(uri) ;
+
         Cursor returnCursor ;
         switch (match){
             case ALLMOVIES :
@@ -63,6 +68,29 @@ public class MovieProvider extends ContentProvider {
                         selection,selectionArgs,null,null ,sortOrder
                 );
                 break;
+
+
+            case MOVIE_ROW:
+
+                Log.e("Movie Provider", "Uri on query" + uri);
+                //
+
+                //  Long id = MovieContract.AllMoviesTable.getIDFromUri(uri);
+
+                String sql = " SELECT * FROM " + MovieContract.AllMoviesTable.TABLE_NAME + " WHERE " + MovieContract.AllMoviesTable._ID
+                        + " = ?";
+
+
+                // returnCursor =  movieDBHelper.getReadableDatabase().rawQuery(sql , new String[]{"10"});
+
+
+                returnCursor = movieDBHelper.getReadableDatabase().query(
+                        MovieContract.AllMoviesTable.TABLE_NAME, projection,
+                        selection, selectionArgs, null, null, sortOrder
+                );
+
+                break;
+
 
             default:
                 throw new UnsupportedOperationException("Unknown URI" + uri) ;
@@ -85,6 +113,10 @@ public class MovieProvider extends ContentProvider {
             case ALLMOVIES:
 
                 return MovieContract.AllMoviesTable.CONTENT_TYPE ;
+
+            case MOVIE_ROW:
+                return MovieContract.AllMoviesTable.CONTENT_ITEM_TYPE;
+
 
             case FAVORITEMOVIES:
                 return  MovieContract.FavoriteMoviesTable.CONTENT_TYPE ;

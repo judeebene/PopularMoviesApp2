@@ -5,8 +5,14 @@ package com.shareqube.moviesapp;
  */
 
 
+import android.annotation.TargetApi;
+import android.os.Build;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.content.Intent;
+import android.support.v4.content.Loader;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,8 +33,11 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.shareqube.moviesapp.adapter.MovieArrayAdapter;
 import com.shareqube.moviesapp.adapter.MoviesAdapter;
+import com.shareqube.moviesapp.data.MovieContract;
 import com.shareqube.moviesapp.sync.MovieSyncAdapter;
 
 import org.json.JSONArray;
@@ -45,15 +54,50 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MovieDiscoveryFragment extends Fragment {
+public class MovieDiscoveryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    static final int COL_ID = 0;
+    static final int COL_MOV_ID = 1;
+    static final int COL_MOV_TITLE = 2;
+    static final int COL_MOV_POSTER = 3;
+    static final int COL_MOV_REL_DATE = 4;
+    static final int COL_MOV_OVERVIEW = 5;
+    static final int COL_USER_RATING = 6;
+    static final int COL_REVIEWS = 7;
+    static final int COL_TRAILER = 8;
+    private static final String SELECTED_KEY = "selected_position";
+    private static final int MAIN_LOADER = 2;
+    private static final int FAVORITE_LOADER = 3;
+    private static String[] MOVIES_COLUMN = {
+
+            MovieContract.AllMoviesTable._ID,
+            MovieContract.AllMoviesTable.COLUMN_MOVIE_ID,
+            MovieContract.AllMoviesTable.COLUMN_MOVIE_TITLE,
+            MovieContract.AllMoviesTable.COLUMN_MOVIE_POSTER,
+            MovieContract.AllMoviesTable.COLUMN_MOVIE_RELEASE_DATE,
+            MovieContract.AllMoviesTable.COLUMN_MOVIE_OVERVIEW,
+            MovieContract.AllMoviesTable.COLUMN_USER_RATING,
+            MovieContract.AllMoviesTable.COLUMN_REVIEWS,
+            MovieContract.AllMoviesTable.COLUMN_TRAILER_URL
+
+    };
+    private static String[] FAVORITES_MOVIE_COLUMN = {
+            MovieContract.FavoriteMoviesTable._ID,
+            MovieContract.FavoriteMoviesTable.COLUMN_FMOVIE_ID,
+            MovieContract.FavoriteMoviesTable.COLUMN_FMOVIE_TITLE,
+            MovieContract.FavoriteMoviesTable.COLUMN_FMOVIE_POSTER,
+            MovieContract.FavoriteMoviesTable.COLUMN_FMOVIE_RELEASE_DATE,
+            MovieContract.FavoriteMoviesTable.COLUMN_FMOVIE_OVERVIEW,
+            MovieContract.FavoriteMoviesTable.COLUMN_FUSER_RATING,
+            MovieContract.FavoriteMoviesTable.COLUMN_FREVIEWS,
+            MovieContract.FavoriteMoviesTable.COLUMN_FTRAILER_URL
+
+    };
     String LOG_TAG = MovieDiscoveryFragment.class.getSimpleName();
-
-    List<Movie> result  =  MovieSyncAdapter.getMovieList();
-
+    GridView moviesPosterGrid;
+    int mPostion = GridView.INVALID_POSITION;
     Movie movie;
-
-
+    MovieArrayAdapter movieArrayAdapter;
     MoviesAdapter mMoviesAdapter;
 
 
@@ -61,9 +105,118 @@ public class MovieDiscoveryFragment extends Fragment {
 
     }
 
-    public interface CallerBack {
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(MAIN_LOADER, null, this);
+        getLoaderManager().initLoader(FAVORITE_LOADER, null, this);
 
-        public void onMovieSelected(Movie m);
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateMovies();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_discovery_screen, container, false);
+
+
+        mMoviesAdapter = new MoviesAdapter(getActivity(), null, 0);
+        // movieArrayAdapter = new MovieArrayAdapter(getActivity(), 0);
+
+        moviesPosterGrid = (GridView) rootView.findViewById(R.id.movie_gridview);
+
+        moviesPosterGrid.setAdapter(mMoviesAdapter);
+
+        moviesPosterGrid.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+
+                        Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+
+
+                        // Uri uri = Uri.parse(MovieContract.AllMoviesTable.CONTENT_URI + "/" +id) ;
+                        if (null != cursor) {
+
+
+                            ((CallerBack) getActivity()).onMovieSelected(MovieContract.AllMoviesTable.getAllMoviesUri(position));
+                        }
+                        mPostion = position;
+                    }
+
+
+                }
+        );
+        // to maintain the position on device rotation
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
+
+            mPostion = savedInstanceState.getInt(SELECTED_KEY);
+        }
+
+
+        return rootView;
+    }
+
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        Uri allMoviesUri = MovieContract.AllMoviesTable.CONTENT_URI;
+        Uri favoriteUri = MovieContract.FavoriteMoviesTable.CONTENT_URI;
+
+        if (id == MAIN_LOADER) {
+
+            CursorLoader loader = new CursorLoader(getActivity(), allMoviesUri,
+                    MOVIES_COLUMN, null, null, null);
+            return loader;
+        } else {
+            CursorLoader loader = new CursorLoader(getActivity(), favoriteUri, FAVORITES_MOVIE_COLUMN,
+                    null, null, null);
+            return loader;
+        }
+
+    }
+
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        // loader.getId(); to get the id of Loader, incase of multiple loader
+
+        int id = loader.getId();
+        if (id == MAIN_LOADER) {
+
+            mMoviesAdapter.swapCursor(data);
+
+            if (mPostion != GridView.INVALID_POSITION) {
+
+                moviesPosterGrid.smoothScrollByOffset(mPostion);
+            }
+        } else {
+
+
+            mMoviesAdapter.swapCursor(data);
+
+            if (mPostion != GridView.INVALID_POSITION) {
+
+                moviesPosterGrid.smoothScrollByOffset(mPostion);
+            }
+
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+        mMoviesAdapter.swapCursor(null);
+
     }
 
     @Override
@@ -71,7 +224,6 @@ public class MovieDiscoveryFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
-
 
     // saving the data into Parcelable object
     @Override
@@ -118,33 +270,24 @@ public class MovieDiscoveryFragment extends Fragment {
 
     public void updateMovies() {
 
+        String sorted = Utility.getPreferedMovieSorted(getActivity());
 
-        MovieSyncAdapter.syncImmediately(getActivity());
+        if (sorted.equals("favorite")) {
+            Log.e(LOG_TAG, "Clear adapter and load favorite");
+        } else {
+
+            MovieSyncAdapter.syncImmediately(getActivity());
+        }
 
 
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        updateMovies();
+    public interface CallerBack {
+
+        public void onMovieSelected(Uri uri);
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
 
-
-        mMoviesAdapter = new MoviesAdapter(getActivity(), R.layout.fragment_discovery_screen, result);
-
-        GridView moviesPosterGrid = (GridView) getActivity().findViewById(R.id.movie_gridview);
-
-        moviesPosterGrid.setAdapter(mMoviesAdapter);
-        View rootView = inflater.inflate(R.layout.fragment_discovery_screen, container, false);
-
-
-        return rootView;
-    }
 
 
 
