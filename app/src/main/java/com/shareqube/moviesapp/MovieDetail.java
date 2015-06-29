@@ -25,20 +25,8 @@ public class MovieDetail extends AppCompatActivity {
                     .commit();
         }
 
-       /* Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
-        toolbar.setTitle(getString(R.string.app_name));
 
 
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-
-        if(actionBar != null){
-            actionBar.setHomeButtonEnabled(true);
-            actionBar.setDisplayHomeAsUpEnabled(true) ;
-            actionBar.show();
-        }
-
-*/
 
 
     }

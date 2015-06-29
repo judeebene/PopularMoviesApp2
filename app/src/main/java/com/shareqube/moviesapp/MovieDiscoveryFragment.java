@@ -5,22 +5,14 @@ package com.shareqube.moviesapp;
  */
 
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.content.Intent;
 import android.support.v4.content.Loader;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -30,28 +22,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.shareqube.moviesapp.adapter.MovieArrayAdapter;
 import com.shareqube.moviesapp.adapter.MoviesAdapter;
 import com.shareqube.moviesapp.data.MovieContract;
 import com.shareqube.moviesapp.sync.MovieSyncAdapter;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class MovieDiscoveryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -109,6 +85,8 @@ public class MovieDiscoveryFragment extends Fragment implements LoaderManager.Lo
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(MAIN_LOADER, null, this);
         getLoaderManager().initLoader(FAVORITE_LOADER, null, this);
+        this.moviesPosterGrid.setSelection(R.drawable.touch_selector);
+
 
         super.onActivityCreated(savedInstanceState);
     }
@@ -129,6 +107,8 @@ public class MovieDiscoveryFragment extends Fragment implements LoaderManager.Lo
         // movieArrayAdapter = new MovieArrayAdapter(getActivity(), 0);
 
         moviesPosterGrid = (GridView) rootView.findViewById(R.id.movie_gridview);
+        TextView emptyMovies = (TextView) rootView.findViewById(R.id.movie_data_empty_view);
+        moviesPosterGrid.setEmptyView(emptyMovies);
 
         moviesPosterGrid.setAdapter(mMoviesAdapter);
 
@@ -136,6 +116,7 @@ public class MovieDiscoveryFragment extends Fragment implements LoaderManager.Lo
                 new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+
 
                         Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
 
@@ -169,17 +150,22 @@ public class MovieDiscoveryFragment extends Fragment implements LoaderManager.Lo
 
         Uri allMoviesUri = MovieContract.AllMoviesTable.CONTENT_URI;
         Uri favoriteUri = MovieContract.FavoriteMoviesTable.CONTENT_URI;
+        CursorLoader loader;
 
-        if (id == MAIN_LOADER) {
+        switch (id) {
+            case FAVORITE_LOADER:
 
-            CursorLoader loader = new CursorLoader(getActivity(), allMoviesUri,
-                    MOVIES_COLUMN, null, null, null);
-            return loader;
-        } else {
-            CursorLoader loader = new CursorLoader(getActivity(), favoriteUri, FAVORITES_MOVIE_COLUMN,
-                    null, null, null);
-            return loader;
+                return new CursorLoader(getActivity(), favoriteUri, FAVORITES_MOVIE_COLUMN,
+                        null, null, null);
+
+
+            default:
+                return new CursorLoader(getActivity(), allMoviesUri,
+                        MOVIES_COLUMN, null, null, null);
+
+
         }
+
 
     }
 
@@ -190,32 +176,57 @@ public class MovieDiscoveryFragment extends Fragment implements LoaderManager.Lo
         // loader.getId(); to get the id of Loader, incase of multiple loader
 
         int id = loader.getId();
-        if (id == MAIN_LOADER) {
+        switch (id) {
 
-            mMoviesAdapter.swapCursor(data);
+            case FAVORITE_LOADER:
 
-            if (mPostion != GridView.INVALID_POSITION) {
+                Log.e(LOG_TAG, "loading the favorite data");
+
+
+                mMoviesAdapter.swapCursor(data);
+
+                if (mPostion != GridView.INVALID_POSITION) {
+
+                    moviesPosterGrid.smoothScrollByOffset(mPostion);
+                }
+
+                data.close();
+                break;
+
+            default:
+
+                mMoviesAdapter.swapCursor(data);
+
+                if (mPostion != GridView.INVALID_POSITION) {
 
                 moviesPosterGrid.smoothScrollByOffset(mPostion);
-            }
-        } else {
+                }
+                break;
 
-
-            mMoviesAdapter.swapCursor(data);
-
-            if (mPostion != GridView.INVALID_POSITION) {
-
-                moviesPosterGrid.smoothScrollByOffset(mPostion);
-            }
 
         }
+
+
+        updateEmptyView();
 
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
-        mMoviesAdapter.swapCursor(null);
+        int id = loader.getId();
+
+        switch (id) {
+            case FAVORITE_LOADER:
+                mMoviesAdapter.swapCursor(null);
+                break;
+            default:
+                mMoviesAdapter.swapCursor(null);
+                break;
+
+        }
+
+
 
     }
 
@@ -274,6 +285,9 @@ public class MovieDiscoveryFragment extends Fragment implements LoaderManager.Lo
 
         if (sorted.equals("favorite")) {
             Log.e(LOG_TAG, "Clear adapter and load favorite");
+
+            getLoaderManager().restartLoader(FAVORITE_LOADER, null, this);
+
         } else {
 
             MovieSyncAdapter.syncImmediately(getActivity());
@@ -282,14 +296,25 @@ public class MovieDiscoveryFragment extends Fragment implements LoaderManager.Lo
 
     }
 
+    public void updateEmptyView() {
+        if (mMoviesAdapter.getCount() == 0) {
+            TextView textView = (TextView) getView().findViewById(R.id.movie_data_empty_view);
+
+            if (null != textView) {
+                int message = R.string.no_movie_data;
+                if (Utility.isNetworkAvailable(getActivity())) {
+                    message = R.string.no_network_available;
+                }
+                textView.setText(message);
+            }
+        }
+    }
+
+
     public interface CallerBack {
 
         public void onMovieSelected(Uri uri);
     }
-
-
-
-
 
 
 

@@ -22,8 +22,10 @@ import android.support.v4.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,6 +35,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +62,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     String LOG_TAG = MovieDetailFragment.class.getSimpleName();
     String mLocation;
     ViewHolder holder;
+    String trailer;
     Bitmap posterBitMap;
     String[] DETAIL_COLUMNS = {
             AllMoviesTable.COLUMN_MOVIE_ID,
@@ -100,50 +104,9 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         rootView.setTag(holder);
 
 
-        //Todo Remove below code to onload Finished();
-        /*
 
-            // try to load  Glide Image from from Diskcache
 
-            Glide.with(this).load(movieDetails.getmMovieposter()).diskCacheStrategy(DiskCacheStrategy.SOURCE).listener(new RequestListener<String, GlideDrawable>() {
-                @Override
-                public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                    Log.i(LOG_TAG, "Listener onException: " + e.toString());
-                    return false;
-                }
 
-                @Override
-                public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                    Log.e(LOG_TAG, "onResourceReady with resource = " + resource);
-                    Log.i(LOG_TAG, "onResourceReady from memory cache = " + isFromMemoryCache);
-                    return false;
-                }
-            }).error(R.drawable.no_poster)
-                    .into(new SimpleTarget<GlideDrawable>(256, 256) {
-                        @Override
-                        public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
-                            Log.i(LOG_TAG, "GlideDrawalble = '" + resource + "'");
-                            holder.detailPoster.setImageDrawable(resource.getCurrent());
-                        }
-                    });
-
-     /*
-            Glide.with(this).load(movieDetails.getmMovieposter()).error(R.drawable.installerposter)
-                    .override(400, 400)
-                    .into(holder.detailPoster);
-                    */
-           /*
-            ViewCompat.setTransitionName(holder.detailPoster, MovieDetail.Transision_name);
-            holder.movieOverview.setText(movieDetails.getmMovieOverview());
-            holder.movieRelease.setText(movieDetails.getmMovieReleaseDate());
-            holder.movieTitle.setText(movieDetails.getmMovietitle());
-
-            Float rating = Float.parseFloat(movieDetails.getmMovieRating());
-            holder.movieRating.setRating(rating);
-
-            holder.movieRatingValue.setText(movieDetails.getmMovieRating());
-
-*/
 
 
         return rootView;
@@ -173,7 +136,14 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
-        inflater.inflate(R.menu.menu_setting, menu);
+        inflater.inflate(R.menu.menu_movie_detail, menu);
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        ShareActionProvider mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        if (null != mShareActionProvider) {
+            mShareActionProvider.setShareIntent(createShareIntent());
+        }
     }
 
     @Override
@@ -223,7 +193,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             final String title = data.getString(COL_TITLE);
             final String poster = data.getString(COL_POSTER);
             final String reviews = data.getString(COL_REVIEWS);
-            final String trailer = data.getString(COL_TRAILER_URL);
+            trailer = data.getString(COL_TRAILER_URL);
 
 
             Glide.with(this)
@@ -239,32 +209,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                     });
 
 
-            // glide
-        /*
-            Glide.with(this).load(poster).diskCacheStrategy(DiskCacheStrategy.SOURCE).listener(new RequestListener<String, GlideDrawable>() {
-                @Override
-                public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                    Log.i(LOG_TAG, "Listener onException: " + e.toString());
-                    return false;
-                }
 
-                @Override
-                public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                    Log.e(LOG_TAG, "onResourceReady with resource = " + resource);
-                    Log.i(LOG_TAG, "onResourceReady from memory cache = " + isFromMemoryCache);
-                    return false;
-                }
-            }).error(R.drawable.no_poster)
-                    .into(new SimpleTarget<GlideDrawable>(256, 256) {
-                        @Override
-                        public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
-                            Log.i(LOG_TAG, "GlideDrawalble = '" + resource + "'");
-                            holder.detailPoster.setImageDrawable(resource.getCurrent());
-                        }
-                    });
-            // end of glide
-
-*/
             // holder.detailPoster.setImageBitmap(posterBitMap);
             holder.movieOverview.setText(overview);
             holder.movieRelease.setText(release_date);
@@ -280,11 +225,10 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
                 public void onClick(View v) {
 
-                    String YOUTUBE_PACKAGE_NAME = "com.google.android.youtube";
-                    String YOUTUBE_CLASS_NAME = "com.google.android.youtube.WatchActivity";
+
 
                     Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(trailer));
-                    // intent.setClassName(YOUTUBE_PACKAGE_NAME ,YOUTUBE_CLASS_NAME);
+
                     startActivity(intent);
 
                 }
@@ -321,6 +265,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+
 
     }
 
@@ -363,6 +308,15 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
     }
 
+    private Intent createShareIntent() {
+        Intent shareintent = new Intent(Intent.ACTION_SEND);
+        shareintent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareintent.setType("text/plain");
+        shareintent.putExtra("share", trailer);
+
+        return shareintent;
+    }
+
     static class ViewHolder {
         ImageView detailPoster;
         TextView movieTitle;
@@ -387,4 +341,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         }
 
     }
+
+
 }

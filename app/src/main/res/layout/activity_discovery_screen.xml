@@ -1,13 +1,15 @@
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/movie_discovery_fragment"
-    android:layout_width="match_parent" android:layout_height="match_parent"
     android:name="com.shareqube.moviesapp.MovieDiscoveryFragment"
-    tools:context="com.shareqube.moviesapp.MovieDiscoveryFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_bg"
 
 
     android:layout="@layout/fragment_discovery_screen"
-    android:background="@color/grey"
+    tools:context="com.shareqube.moviesapp.MovieDiscoveryFragment"
+
     tools:layout="@layout/fragment_discovery_screen">
 
     <android.support.v7.widget.Toolbar

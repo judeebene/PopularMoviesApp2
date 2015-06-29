@@ -17,8 +17,6 @@ public class MovieProvider extends ContentProvider {
     static final int ALLMOVIES = 100 ;
     static final int MOVIE_ROW = 150;
     static final int FAVORITEMOVIES =200 ;
-    private static final String sSingle =
-            MovieContract.AllMoviesTable._ID + " = ? ";
     static UriMatcher uriMatcher = buildUriMatcher();
     MovieDBHelper movieDBHelper ;
 
@@ -72,16 +70,10 @@ public class MovieProvider extends ContentProvider {
 
             case MOVIE_ROW:
 
-                Log.e("Movie Provider", "Uri on query" + uri);
-                //
 
-                //  Long id = MovieContract.AllMoviesTable.getIDFromUri(uri);
 
                 String sql = " SELECT * FROM " + MovieContract.AllMoviesTable.TABLE_NAME + " WHERE " + MovieContract.AllMoviesTable._ID
                         + " = ?";
-
-
-                // returnCursor =  movieDBHelper.getReadableDatabase().rawQuery(sql , new String[]{"10"});
 
 
                 returnCursor = movieDBHelper.getReadableDatabase().query(

@@ -234,7 +234,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
 
-        return;
+
 
     }
 
@@ -309,7 +309,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             if (null != movieTrailerKey && !movieTrailerKey.isEmpty()) {
                 movie_trailer = YOUTUBE_BASE_URL + movieTrailerKey.get(0);
             }
-            String movie_review = "";
+            String movie_review = "No Review Yet";
             if (movieReviews != null && !movieReviews.isEmpty()) {
 
                 movie_review = String.valueOf(movieReviews.get(0));
@@ -317,7 +317,6 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
 
-            // Log.e(LOG_TAG , "Value Retrive in Reviews"+ movie_review)  ;
 
 
             movie = new Movie(movie_id, movie_title, movie_poster, release_date, movie_overview, user_rating, movie_review, movie_trailer);

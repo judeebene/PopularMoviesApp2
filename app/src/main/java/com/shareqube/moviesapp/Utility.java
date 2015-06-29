@@ -2,6 +2,8 @@ package com.shareqube.moviesapp;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 
 /**
@@ -29,5 +31,15 @@ public class Utility {
 
 
         return BASE_MOVIE_POSTER_URL + IMAGE_SIZES[0] + relative_path;
+    }
+
+    public static Boolean isNetworkAvailable(Context c) {
+
+        ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
     }
 }

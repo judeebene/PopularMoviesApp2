@@ -39,7 +39,6 @@ public class MoviesAdapter extends CursorAdapter {
     List<String> path;
 
 
-    int resouse_id;
 
     LayoutInflater minflater;
     ViewHolder holder;
@@ -95,37 +94,8 @@ public class MoviesAdapter extends CursorAdapter {
 
 
         Glide.with(mContext).load(url).error(R.drawable.no_poster).into(holder.moviesPoster);
-        //new DownloadPosterToCacheTask().execute(url);
 
 
-
-       /*     // start to get from cache
-
-            Glide.with(mContext).load(url).diskCacheStrategy(DiskCacheStrategy.SOURCE).listener(new RequestListener<String, GlideDrawable>() {
-                @Override
-                public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                    Log.i(LOG_TAG, "Listener onException: " + e.toString());
-                    return false;
-                }
-
-                @Override
-                public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                    Log.e(LOG_TAG, "onResourceReady with resource = " + resource);
-                    Log.i(LOG_TAG, "onResourceReady from memory cache = " + isFromMemoryCache);
-                    return false;
-                }
-            }).error(R.drawable.no_poster)
-                    .into(new SimpleTarget<GlideDrawable>(256, 256) {
-                        @Override
-                        public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
-                            Log.i(LOG_TAG, "GlideDrawalble = '" + resource + "'");
-                            holder.moviesPoster.setImageDrawable(resource.getCurrent());
-                        }
-                    });
-
-            // end from cache
-
-*/
     }
 
     static class ViewHolder {

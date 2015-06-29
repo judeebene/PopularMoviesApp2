@@ -6,6 +6,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="action_refresh">Refresh</string>
+    <string name="action_share">share</string>
     <string name="title_activity_setting">Setting</string>
     <string name="movie_sort_key">sort_order_key</string>
     <string name="movie_sort_order_default_value">popularity.desc</string>
@@ -21,7 +22,11 @@
     <string name="movie_detail_no_description"> No Movie Description</string>
     <string name="movie_detail_rating_value"> 0.0 </string>
     <string name="intent_extra">movie</string>
+    <string name="trailer"> Trailer</string>
+    <string name="reviews_titlew"> Movie  Review </string>
     <string name="sync_account_type">movieapp.shareqube.com</string>
     <string name="content_authority">com.shareqube.moviesapp.data</string>
+    <string name="no_movie_data"> No Movies Data Available , if you have favorites Movies, you can change the setting</string>
+    <string name="no_network_available"> No Movies Data , NetWork is not Available to fetch the Moviesif you have favorites Movies, you can change the setting </string>
 
 </resources>
