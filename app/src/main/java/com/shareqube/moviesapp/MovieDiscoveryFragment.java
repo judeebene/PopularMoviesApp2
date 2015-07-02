@@ -24,13 +24,14 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
 
-import com.shareqube.moviesapp.adapter.MovieArrayAdapter;
+
 import com.shareqube.moviesapp.adapter.MoviesAdapter;
 import com.shareqube.moviesapp.data.MovieContract;
 import com.shareqube.moviesapp.sync.MovieSyncAdapter;
 
 
 public class MovieDiscoveryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
 
     static final int COL_ID = 0;
     static final int COL_MOV_ID = 1;
@@ -73,7 +74,7 @@ public class MovieDiscoveryFragment extends Fragment implements LoaderManager.Lo
     GridView moviesPosterGrid;
     int mPostion = GridView.INVALID_POSITION;
     Movie movie;
-    MovieArrayAdapter movieArrayAdapter;
+
     MoviesAdapter mMoviesAdapter;
 
 
@@ -84,7 +85,7 @@ public class MovieDiscoveryFragment extends Fragment implements LoaderManager.Lo
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(MAIN_LOADER, null, this);
-        getLoaderManager().initLoader(FAVORITE_LOADER, null, this);
+        // getLoaderManager().initLoader(FAVORITE_LOADER, null, this);
         this.moviesPosterGrid.setSelection(R.drawable.touch_selector);
 
 
@@ -183,14 +184,23 @@ public class MovieDiscoveryFragment extends Fragment implements LoaderManager.Lo
                 Log.e(LOG_TAG, "loading the favorite data");
 
 
-                mMoviesAdapter.swapCursor(data);
+                mMoviesAdapter.changeCursor(data);
+                mMoviesAdapter.notifyDataSetChanged();
 
-                if (mPostion != GridView.INVALID_POSITION) {
+                Log.e(LOG_TAG, " Is Resumed" + isResumed());
+                if (isResumed()) {
 
-                    moviesPosterGrid.smoothScrollByOffset(mPostion);
+
+                    moviesPosterGrid.invalidateViews();
+                    moviesPosterGrid.setVisibility(View.VISIBLE);
+
+
+                    if (mPostion != GridView.INVALID_POSITION) {
+
+                        moviesPosterGrid.smoothScrollByOffset(mPostion);
+                    }
+
                 }
-
-                data.close();
                 break;
 
             default:
@@ -201,6 +211,7 @@ public class MovieDiscoveryFragment extends Fragment implements LoaderManager.Lo
 
                 moviesPosterGrid.smoothScrollByOffset(mPostion);
                 }
+
                 break;
 
 
@@ -286,7 +297,13 @@ public class MovieDiscoveryFragment extends Fragment implements LoaderManager.Lo
         if (sorted.equals("favorite")) {
             Log.e(LOG_TAG, "Clear adapter and load favorite");
 
+
             getLoaderManager().restartLoader(FAVORITE_LOADER, null, this);
+            ((MoviesAdapter) moviesPosterGrid.getAdapter()).notifyDataSetChanged();
+            moviesPosterGrid.invalidateViews();
+
+
+
 
         } else {
 
